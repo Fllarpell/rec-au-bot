@@ -1,0 +1,10 @@
+aiogram
+pydub
+numpy
+scipy
+scikit-learn
+keras
+pandas
+librosa
+tensorflow
+tqdm

@@ -1,0 +1,47 @@
+# Файлы окружения
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Логи и отладочные файлы
+*.log
+logs/
+debug.log
+
+# Конфигурационные файлы и кэши
+.env
+*.ini
+*.cfg
+*.db
+.DS_Store
+
+# Файлы из IDE
+.vscode/
+.idea/
+*.iml
+
+# Данные и результаты обучения
+dataset/
+*.tar.gz
+*.zip
+*.csv
+*.tsv
+
+# Предобработанные данные
+preprocessed/
+*.npy
+*.pkl
+
+# Модели и их веса
+models/
+*.h5
+*.pt
+*.pkl
+
+# Результаты тестов
+test-results/
+
+# Текстовые файлы
+README.md~
