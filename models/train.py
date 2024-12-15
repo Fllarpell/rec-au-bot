@@ -12,12 +12,10 @@ from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-# Пути
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dataset", "cv-corpus-20.0-2024-12-06", "ru", "preprocessed"))
 MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models", "speech_model.keras"))
 HDF5_PATH = os.path.join(BASE_PATH, "preprocessed.h5")
 
-# Параметры
 FIXED_LEN = 200
 BATCH_SIZE = 32
 EPOCHS = 30
@@ -25,12 +23,10 @@ LEARNING_RATE = 0.0005
 PATIENCE = 5
 
 
-# Улучшенная функция активации
 def swish(x):
     return x * tf.keras.activations.sigmoid(x)
 
 
-# Функция для обрезки/дополнения данных
 def pad_or_trim_features(features, target_len=FIXED_LEN):
     if features.shape[1] > target_len:
         return features[:, :target_len]
@@ -39,14 +35,12 @@ def pad_or_trim_features(features, target_len=FIXED_LEN):
         return np.pad(features, ((0, 0), (0, pad_width)), mode="constant")
 
 
-# Генератор данных
 def hdf5_generator(hdf5_path, batch_size, label_encoder):
     with h5py.File(hdf5_path, "r") as hf:
         data = hf["data"]
         labels = hf["labels"]
         num_samples = len(data)
 
-        # Преобразование меток в индексированный формат
         encoded_labels = label_encoder.transform([label.decode("utf-8") for label in labels])
 
         while True:
@@ -66,7 +60,6 @@ def hdf5_generator(hdf5_path, batch_size, label_encoder):
                 yield batch_data, batch_labels
 
 
-# Построение модели
 def build_model(input_shape, output_units):
     inputs = Input(name="inputs", shape=input_shape)
 
@@ -96,34 +89,25 @@ def build_model(input_shape, output_units):
     return model
 
 
-# Основной блок
 if __name__ == "__main__":
-    print("Определение количества уникальных классов...")
     with h5py.File(HDF5_PATH, "r") as hf:
         labels = [label.decode("utf-8") for label in hf["labels"]]
 
-    # Кодирование меток
     label_encoder = LabelEncoder()
     y_encoded = label_encoder.fit_transform(labels)
     output_units = len(np.unique(y_encoded))
-    print(f"Количество уникальных классов: {output_units}")
 
-    print("Построение модели...")
     input_shape = (128, FIXED_LEN, 1)
     model = build_model(input_shape, output_units)
 
-    # Генератор данных
-    print("Создание генератора данных...")
     train_gen = hdf5_generator(HDF5_PATH, BATCH_SIZE, label_encoder)
     steps_per_epoch = len(y_encoded) // BATCH_SIZE
 
-    # Настройка обратных вызовов
     callbacks = [
         EarlyStopping(monitor="loss", patience=PATIENCE, restore_best_weights=True),
         ModelCheckpoint(MODEL_PATH, monitor="loss", save_best_only=True, verbose=1)
     ]
 
-    # Обучение модели
     print("Начало обучения...")
     history = model.fit(
         train_gen,
@@ -134,13 +118,11 @@ if __name__ == "__main__":
 
     print(f"Модель сохранена в {MODEL_PATH}")
 
-    # График обучения
     plt.figure(figsize=(10, 6))
     plt.plot(history.history["accuracy"], label="Train Accuracy")
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.title("Точность модели во время обучения")
+    plt.title("Train accuracy")
     plt.grid()
     plt.show()
-

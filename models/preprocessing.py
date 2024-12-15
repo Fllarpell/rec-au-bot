@@ -54,19 +54,15 @@ def preprocess_data():
     if results:
         data, labels = zip(*results)
 
-        # Фильтрация некорректных данных
         filtered_data = []
         filtered_labels = []
         for mel_spec, label in zip(data, labels):
-            if mel_spec.size > 0:  # Проверка на пустые спектрограммы
+            if mel_spec.size > 0:
                 filtered_data.append(mel_spec)
                 filtered_labels.append(label)
 
-        print(f"Корректных данных для сохранения: {len(filtered_data)}")
-
         print("Сохранение данных...")
         with h5py.File("preprocessed.h5", "w") as hf:
-            # Используем vlen для данных переменной длины
             data_dtype = h5py.special_dtype(vlen=np.float32)
             string_dtype = h5py.string_dtype(encoding="utf-8")
 
